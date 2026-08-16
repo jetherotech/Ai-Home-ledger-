@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeLedger AI — Product UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F8FAFC;
+    --card:#FFFFFF;
+    --border:#E7EAF0;
+    --border-soft:#EEF1F5;
+    --text-1:#0F172A;
+    --text-2:#5B6472;
+    --text-3:#98A2B0;
+
+    --blue:#4C5FD5;
+    --blue-dark:#3D4CB8;
+    --blue-light:#EEF0FD;
+    --blue-line:#D7DCF8;
+
+    --green:#3E8F63;
+    --green-light:#E8F5EE;
+    --green-line:#CBE7D7;
+
+    --orange:#DB8A3B;
+    --orange-light:#FCF1E2;
+    --orange-line:#F3DBB4;
+
+    --red:#C85A50;
+    --red-light:#FBEDEC;
+    --red-line:#F0CFCB;
+
+    --radius-lg:16px;
+    --radius-md:12px;
+    --radius-sm:8px;
+
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.05);
+    --shadow-md: 0 10px 30px -12px rgba(15,23,42,0.16), 0 2px 8px rgba(15,23,42,0.04);
+    --shadow-card: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    background:var(--bg);
+    color:var(--text-1);
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none;}
+
+  /* ============ PREVIEW SWITCHER (meta nav for this mockup) ============ */
+  .preview-nav{
+    position:sticky; top:0; z-index:100;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    gap:6px; padding:10px;
+  }
+  .preview-nav .tab{
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:13px; font-weight:600;
+    color:var(--text-2);
+    transition:all .15s ease;
+  }
+  .preview-nav .tab.active{
+    background:var(--text-1);
+    color:#fff;
+  }
+  .preview-nav .tab:not(.active):hover{ background:var(--bg); color:var(--text-1); }
+
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* ============ SHARED ============ */
+  .badge{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:12px; font-weight:600;
+    padding:3px 9px; border-radius:999px;
+    white-space:nowrap;
+  }
+  .badge.blue{ background:var(--blue-light); color:var(--blue); }
+  .badge.green{ background:var(--green-light); color:var(--green); }
+  .badge.orange{ background:var(--orange-light); color:var(--orange); }
+  .badge.red{ background:var(--red-light); color:var(--red); }
+  .badge.neutral{ background:#F1F3F6; color:var(--text-2); }
+
+  .icon-chip{
+    width:40px; height:40px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .icon-chip.blue{ background:var(--blue-light); color:var(--blue); }
+  .icon-chip.green{ background:var(--green-light); color:var(--green); }
+  .icon-chip.orange{ background:var(--orange-light); color:var(--orange); }
+  .icon-chip.slate{ background:#F1F3F6; color:var(--text-2); }
+
+  .btn-primary{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--blue); color:#fff;
+    font-size:14px; font-weight:600;
+    padding:10px 18px; border-radius:10px;
+    box-shadow:0 1px 2px rgba(76,95,213,0.15);
+    transition:background .15s ease, transform .1s ease;
+  }
+  .btn-primary:hover{ background:var(--blue-dark); }
+  .btn-primary:active{ transform:scale(0.98); }
+
+  /* ============================================================
+     DESKTOP DASHBOARD
+     ============================================================ */
+  #view-desktop .wrap{ max-width:1360px; margin:0 auto; padding:0 32px 64px; }
+
+  .app-header{
+    display:flex; align-items:center; gap:24px;
+    padding:18px 32px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+  }
+  .app-header .logo{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .app-header .logo-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:linear-gradient(155deg, var(--blue), #6C7CE8);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .app-header .logo-word{ font-size:16.5px; font-weight:800; letter-spacing:-0.02em; }
+  .app-header .logo-word span{ color:var(--blue); }
+
+  .search-bar{
+    flex:1; max-width:520px;
+    display:flex; align-items:center; gap:9px;
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:9px 14px;
+    color:var(--text-3);
+  }
+  .search-bar input{
+    border:none; background:transparent; outline:none;
+    font-size:13.5px; font-family:inherit; color:var(--text-1); width:100%;
+  }
+  .search-bar input::placeholder{ color:var(--text-3); }
+
+  .header-right{ display:flex; align-items:center; gap:18px; margin-left:auto; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-2);
+    position:relative;
+    transition:background .15s ease;
+  }
+  .icon-btn:hover{ background:var(--bg); }
+  .icon-btn .dot{
+    position:absolute; top:7px; right:7px;
+    width:7px; height:7px; border-radius:50%;
+    background:var(--orange); border:1.5px solid #fff;
+  }
+  .avatar{
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(155deg,#6C7CE8,var(--blue));
+    color:#fff; font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .page-heading{ padding:28px 0 20px; display:flex; align-items:baseline; justify-content:space-between; }
+  .page-heading h1{ font-size:22px; font-weight:800; letter-spacing:-0.02em; }
+  .page-heading p{ font-size:13.5px; color:var(--text-2); margin-top:3px; }
+
+  /* Hero card */
+  .hero-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);
+    display:grid;
+    grid-template-columns:360px 1fr;
+    overflow:hidden;
+  }
+  .hero-photo{ position:relative; min-height:280px; }
+  .hero-photo svg{ width:100%; height:100%; }
+  .hero-photo .addr-chip{
+    position:absolute; left:16px; bottom:16px;
+    background:rgba(15,23,42,0.55);
+    backdrop-filter:blur(6px);
+    color:#fff; font-size:11.5px; font-weight:600;
+    padding:6px 10px; border-radius:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .hero-body{ padding:26px 30px; display:flex; flex-direction:column; }
+  .hero-eyebrow{
+    font-size:11.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--text-3); margin-bottom:6px;
+  }
+  .hero-address{ font-size:21px; font-weight:800; letter-spacing:-0.01em; }
+  .hero-address-sub{ font-size:13px; color:var(--text-2); margin-top:2px; }
+
+  .hero-value-row{ display:flex; align-items:flex-end; gap:14px; margin-top:22px; }
+  .hero-value{ font-size:36px; font-weight:800; letter-spacing:-0.02em; }
+  .hero-value-label{ font-size:12px; color:var(--text-2); margin-bottom:6px; }
+  .trend-badge{
+    display:inline-flex; align-items:center; gap:4px;
+    background:var(--green-light); color:var(--green);
+    font-size:12.5px; font-weight:700;
+    padding:5px 10px; border-radius:999px;
+    margin-bottom:5px;
+  }
+
+  .hero-callout{
+    margin-top:auto; padding-top:20px;
+  }
+  .callout-box{
+    display:flex; align-items:center; gap:12px;
+    background:var(--orange-light);
+    border:1px solid var(--orange-line);
+    border-radius:var(--radius-md);
+    padding:13px 16px;
+  }
+  .callout-box .txt{ flex:1; }
+  .callout-box .txt .t1{ font-size:13.5px; font-weight:700; color:#8A5A20; }
+  .callout-box .txt .t2{ font-size:12px; color:#9C6B2E; margin-top:1px; }
+  .callout-box .cta{ font-size:12.5px; font-weight:700; color:var(--orange); display:flex; align-items:center; gap:3px; flex-shrink:0; }
+
+  /* Metrics grid */
+  .metrics-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
+    margin-top:22px;
+  }
+  .stat-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card); padding:20px;
+    transition:box-shadow .18s ease, transform .18s ease;
+  }
+  .stat-card:hover{ box-shadow:var(--shadow-md); transform:translateY(-1px); }
+  .stat-card .top-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .stat-card .stat-value{ font-size:28px; font-weight:800; letter-spacing:-0.02em; }
+  .stat-card .stat-label{ font-size:12.5px; color:var(--text-2); margin-top:4px; font-weight:500; }
+
+  /* Split lists */
+  .split-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:20px;
+    margin-top:22px;
+  }
+  .panel{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card); overflow:hidden;
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 22px; border-bottom:1px solid var(--border-soft);
+  }
+  .panel-head h3{ font-size:15px; font-weight:700; }
+  .panel-head .see-all{ font-size:12.5px; font-weight:600; color:var(--blue); }
+  .list-row{
+    display:flex; align-items:center; gap:14px;
+    padding:14px 22px;
+    border-bottom:1px solid var(--border-soft);
+    transition:background .12s ease;
+  }
+  .list-row:last-child{ border-bottom:none; }
+  .list-row:hover{ background:#FAFBFD; }
+  .list-row .info{ flex:1; min-width:0; }
+  .list-row .info .name{ font-size:13.5px; font-weight:600; color:var(--text-1); }
+  .list-row .info .meta{ font-size:12px; color:var(--text-2); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .list-row .meta .sep{ width:3px; height:3px; border-radius:50%; background:var(--text-3); }
+  .list-row .right{ text-align:right; flex-shrink:0; }
+  .list-row .amount{ font-size:13.5px; font-weight:700; }
+  .list-row .date{ font-size:11.5px; color:var(--text-3); margin-top:2px; }
+
+  /* ============================================================
+     MOBILE SCREENS
+     ============================================================ */
+  #view-mobile .wrap{ max-width:1400px; margin:0 auto; padding:44px 32px 80px; }
+  .mobile-intro{ text-align:center; margin-bottom:40px; }
+  .mobile-intro h1{ font-size:22px; font-weight:800; letter-spacing:-0.02em; }
+  .mobile-intro p{ font-size:13.5px; color:var(--text-2); margin-top:6px; }
+
+  .phones-row{
+    display:flex; gap:40px; justify-content:center; flex-wrap:wrap;
+    align-items:flex-start;
+  }
+  .phone-block{ display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .phone-label{ font-size:13px; font-weight:700; color:var(--text-1); }
+
+  .iphone{
+    width:300px; height:624px;
+    background:#0B0D12;
+    border-radius:44px;
+    padding:12px;
+    box-shadow:var(--shadow-md), 0 0 0 1.5px #1a1d24;
+    position:relative;
+  }
+  .iphone-screen{
+    width:100%; height:100%;
+    background:var(--bg);
+    border-radius:34px;
+    overflow:hidden;
+    position:relative;
+    display:flex; flex-direction:column;
+  }
+  .dynamic-island{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    width:88px; height:24px; background:#0B0D12; border-radius:14px;
+    z-index:50;
+  }
+  .status-bar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px 4px; font-size:13px; font-weight:700; color:var(--text-1);
+    flex-shrink:0;
+  }
+  .status-bar .icons{ display:flex; align-items:center; gap:4px; }
+  .home-indicator{
+    position:absolute; bottom:7px; left:50%; transform:translateX(-50%);
+    width:112px; height:4px; border-radius:3px; background:var(--text-1); opacity:0.85;
+  }
+  .m-scroll{ flex:1; overflow:hidden; padding:6px 16px 16px; }
+
+  /* mobile: dashboard */
+  .m-header{ display:flex; align-items:center; gap:10px; padding:6px 2px 16px; }
+  .m-header .thumb{ width:44px; height:44px; border-radius:12px; overflow:hidden; flex-shrink:0; }
+  .m-header .thumb svg{ width:100%; height:100%; }
+  .m-header .info .addr{ font-size:13.5px; font-weight:700; }
+  .m-header .info .val{ font-size:11.5px; color:var(--text-2); margin-top:1px; }
+  .m-header .bell{ margin-left:auto; width:34px; height:34px; border-radius:10px; background:#fff; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-2); }
+
+  .m-tiles{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .m-tile{
+    background:#fff; border:1px solid var(--border); border-radius:14px;
+    padding:14px; box-shadow:var(--shadow-card);
+  }
+  .m-tile .val{ font-size:20px; font-weight:800; letter-spacing:-0.02em; margin-top:10px; }
+  .m-tile .lbl{ font-size:11px; color:var(--text-2); font-weight:600; margin-top:2px; }
+
+  .ask-bar{
+    display:flex; align-items:center; gap:10px;
+    background:#fff; border:1px solid var(--blue-line);
+    border-radius:16px; padding:12px 14px;
+    box-shadow:var(--shadow-card);
+    margin-bottom:16px;
+  }
+  .ask-bar .ic{ width:30px; height:30px; border-radius:9px; background:var(--blue-light); color:var(--blue); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .ask-bar .txt{ flex:1; }
+  .ask-bar .txt .t1{ font-size:12.5px; font-weight:700; }
+  .ask-bar .txt .t2{ font-size:10.5px; color:var(--text-3); }
+  .ask-bar .mic{ width:30px; height:30px; border-radius:50%; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  .m-section-title{ font-size:12.5px; font-weight:700; color:var(--text-1); margin:4px 0 10px; }
+
+  .m-card{
+    background:#fff; border:1px solid var(--border); border-radius:14px;
+    padding:13px; box-shadow:var(--shadow-card); margin-bottom:10px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .m-card .ic{ width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .m-card .body{ flex:1; min-width:0; }
+  .m-card .body .r1{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .m-card .body .name{ font-size:12.5px; font-weight:700; }
+  .m-card .body .sub{ font-size:11px; color:var(--text-2); margin-top:2px; }
+  .m-card .body .price{ font-size:12.5px; font-weight:700; color:var(--text-1); flex-shrink:0; }
+  .m-badge{ font-size:10px; font-weight:700; padding:2.5px 7px; border-radius:999px; }
+
+  /* mobile: segmented control */
+  .segmented{
+    display:flex; background:#EEF0F3; border-radius:10px; padding:3px; margin-bottom:16px;
+  }
+  .segmented .seg{
+    flex:1; text-align:center; font-size:12px; font-weight:700; color:var(--text-2);
+    padding:7px 0; border-radius:8px;
+  }
+  .segmented .seg.active{ background:#fff; color:var(--text-1); box-shadow:0 1px 3px rgba(15,23,42,0.12); }
+
+  /* mobile: warranties */
+  .warranty-card{
+    background:#fff; border:1px solid var(--border); border-radius:14px;
+    padding:14px; box-shadow:var(--shadow-card); margin-bottom:10px;
+    display:flex; align-items:center; gap:13px;
+  }
+  .ring{ position:relative; width:46px; height:46px; flex-shrink:0; }
+  .ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .ring .pct{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:800; }
+  .warranty-card .body{ flex:1; min-width:0; }
+  .warranty-card .body .r1{ display:flex; align-items:center; justify-content:space-between; }
+  .warranty-card .body .name{ font-size:12.5px; font-weight:700; }
+  .warranty-card .body .sub{ font-size:11px; color:var(--text-2); margin-top:2px; }
+
+  /* mobile: documents */
+  .folder-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .folder-card{
+    background:#fff; border:1px solid var(--border); border-radius:14px;
+    padding:16px 14px; box-shadow:var(--shadow-card);
+  }
+  .folder-card .ic{ width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .folder-card .name{ font-size:12.5px; font-weight:700; }
+  .folder-card .count{ font-size:11px; color:var(--text-2); margin-top:2px; }
+
+  /* ============================================================
+     AI ASSISTANT VIEW
+     ============================================================ */
+  #view-ai .wrap{ max-width:680px; margin:0 auto; padding:56px 24px 90px; }
+  .ai-intro{ text-align:center; margin-bottom:28px; }
+  .ai-intro .ic{
+    width:52px; height:52px; border-radius:15px; margin:0 auto 16px;
+    background:linear-gradient(155deg, var(--blue), #6C7CE8);
+    display:flex; align-items:center; justify-content:center; color:#fff;
+  }
+  .ai-intro h1{ font-size:22px; font-weight:800; letter-spacing:-0.02em; }
+  .ai-intro p{ font-size:13.5px; color:var(--text-2); margin-top:6px; max-width:420px; margin-left:auto; margin-right:auto; }
+
+  .pill-row{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:28px; }
+  .prompt-pill{
+    font-size:12.5px; font-weight:600; color:var(--blue);
+    background:var(--blue-light); border:1px solid var(--blue-line);
+    padding:8px 14px; border-radius:999px;
+    transition:background .15s ease;
+  }
+  .prompt-pill:hover{ background:#E4E7FB; }
+
+  .chat-panel{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card); overflow:hidden;
+  }
+  .chat-panel-head{
+    display:flex; align-items:center; gap:10px;
+    padding:16px 20px; border-bottom:1px solid var(--border-soft);
+  }
+  .chat-panel-head .dot-status{ width:8px; height:8px; border-radius:50%; background:var(--green); }
+  .chat-panel-head .t{ font-size:13.5px; font-weight:700; }
+  .chat-panel-head .s{ font-size:11.5px; color:var(--text-3); }
+
+  .chat-body{ padding:22px 20px; display:flex; flex-direction:column; gap:16px; }
+
+  .msg-user{ align-self:flex-end; max-width:78%; }
+  .msg-user .bubble{
+    background:var(--blue); color:#fff;
+    font-size:13.5px; font-weight:500; line-height:1.5;
+    padding:11px 15px; border-radius:14px 14px 4px 14px;
+  }
+
+  .msg-ai{ align-self:flex-start; max-width:100%; width:100%; }
+  .msg-ai .bubble-lead{
+    font-size:13.5px; color:var(--text-1); line-height:1.55; margin-bottom:12px; padding:0 2px;
+  }
+
+  .extract-card{
+    background:#FAFBFD; border:1px solid var(--border); border-radius:14px; overflow:hidden;
+  }
+  .extract-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px; border-bottom:1px solid var(--border-soft);
+  }
+  .extract-row:last-of-type{ border-bottom:none; }
+  .extract-row .k{ font-size:12.5px; color:var(--text-2); font-weight:500; }
+  .extract-row .v{ font-size:12.5px; font-weight:700; color:var(--text-1); text-align:right; }
+
+  .file-chip{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px; background:#fff; border-top:1px solid var(--border-soft);
+    transition:background .15s ease;
+  }
+  .file-chip:hover{ background:#F5F7FA; }
+  .file-chip .ic{ width:32px; height:32px; border-radius:8px; background:var(--red-light); color:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .file-chip .info{ flex:1; min-width:0; }
+  .file-chip .info .n{ font-size:12px; font-weight:700; color:var(--text-1); }
+  .file-chip .info .s{ font-size:10.5px; color:var(--text-3); }
+  .file-chip .ext{ color:var(--blue); flex-shrink:0; }
+
+  .chat-input-row{
+    display:flex; align-items:center; gap:10px;
+    padding:14px 16px; border-top:1px solid var(--border-soft);
+    background:#fff;
+  }
+  .chat-input-row .field{
+    flex:1; background:var(--bg); border:1px solid var(--border); border-radius:10px;
+    padding:10px 14px; font-size:13px; color:var(--text-3);
+  }
+  .chat-input-row .send{
+    width:36px; height:36px; border-radius:10px; background:var(--blue); color:#fff;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .chat-input-row .mic-btn{
+    width:36px; height:36px; border-radius:10px; background:var(--bg); border:1px solid var(--border); color:var(--text-2);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+
+  @media (max-width: 1100px){
+    .metrics-grid{ grid-template-columns:repeat(2,1fr); }
+    .split-grid{ grid-template-columns:1fr; }
+    .hero-card{ grid-template-columns:1fr; }
+    .hero-photo{ min-height:200px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="preview-nav">
+  <button class="tab active" data-view="desktop">Desktop Dashboard</button>
+  <button class="tab" data-view="mobile">Mobile App</button>
+  <button class="tab" data-view="ai">Ask Your Property</button>
+</nav>
+
+<!-- ============================================================
+     DESKTOP DASHBOARD
+============================================================ -->
+<div class="view active" id="view-desktop">
+
+  <header class="app-header">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 11.5L12 4l9 7.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9a1 1 0 001 1h11a1 1 0 001-1v-9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 20v-6h5v6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="logo-word">HomeLedger <span>AI</span></div>
+    </div>
+
+    <div class="search-bar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="text" placeholder="Search documents, vendors, or ask a question…">
+    </div>
+
+    <div class="header-right">
+      <button class="icon-btn"><span class="dot"></span>
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 01-3.4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Upload Document
+      </button>
+      <div class="avatar">MS</div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="page-heading">
+      <div>
+        <h1>Good afternoon, Mr. Siddiqui</h1>
+        <p>Here's what's happening with your property today.</p>
+      </div>
+    </div>
+
+    <!-- Hero card -->
+    <div class="hero-card">
+      <div class="hero-photo">
+        <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#CFE0F2"/>
+              <stop offset="1" stop-color="#EAF1F8"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="400" fill="url(#sky)"/>
+          <rect y="290" width="400" height="110" fill="#DCE8DA"/>
+          <rect x="30" y="300" width="60" height="18" rx="9" fill="#B9D3B6"/>
+          <rect x="300" y="308" width="80" height="14" rx="7" fill="#B9D3B6"/>
+          <!-- tree -->
+          <rect x="52" y="250" width="8" height="55" fill="#8A6A4C"/>
+          <circle cx="56" cy="235" r="32" fill="#6FA184"/>
+          <circle cx="30" cy="255" r="20" fill="#6FA184"/>
+          <circle cx="82" cy="255" r="20" fill="#6FA184"/>
+          <!-- house body -->
+          <rect x="120" y="200" width="220" height="110" fill="#F4EFE7"/>
+          <rect x="120" y="200" width="220" height="110" fill="#F4EFE7" stroke="#E3DACB" stroke-width="1"/>
+          <!-- roof -->
+          <polygon points="105,205 230,120 355,205" fill="#8A5A45"/>
+          <polygon points="105,205 230,120 230,132 120,205" fill="#9A6B54"/>
+          <!-- chimney -->
+          <rect x="290" y="140" width="18" height="45" fill="#7C4F3D"/>
+          <!-- door -->
+          <rect x="212" y="250" width="34" height="60" rx="3" fill="#DB8A3B"/>
+          <circle cx="238" cy="282" r="2.4" fill="#F4EFE7"/>
+          <!-- windows -->
+          <rect x="145" y="225" width="38" height="34" rx="3" fill="#BFD8E8" stroke="#fff" stroke-width="3"/>
+          <rect x="278" y="225" width="38" height="34" rx="3" fill="#BFD8E8" stroke="#fff" stroke-width="3"/>
+          <rect x="145" y="270" width="38" height="34" rx="3" fill="#BFD8E8" stroke="#fff" stroke-width="3"/>
+          <!-- driveway -->
+          <polygon points="340,310 400,310 400,400 355,400" fill="#C9CDD3"/>
+        </svg>
+        <div class="addr-chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0112 2a7 7 0 017 7.5C19 14.8 12 21 12 21z" stroke="white" stroke-width="2"/><circle cx="12" cy="9.5" r="2.3" stroke="white" stroke-width="2"/></svg>
+          Primary Residence
+        </div>
+      </div>
+
+      <div class="hero-body">
+        <div class="hero-eyebrow">Property Overview</div>
+        <div class="hero-address">128 Maple Ridge Lane</div>
+        <div class="hero-address-sub">Concord, MA 01742 · Single-family · Built 1998</div>
+
+        <div class="hero-value-row">
+          <div>
+            <div class="hero-value-label">Estimated Value</div>
+            <div class="hero-value">$682,400</div>
+          </div>
+          <div class="trend-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4 17L10 11L14 15L20 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 8h6v6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            +4.2% YoY
+          </div>
+        </div>
+
+        <div class="hero-callout">
+          <div class="callout-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 16.5h.01" stroke="#DB8A3B" stroke-width="2.2" stroke-linecap="round"/><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.6 2.7h15.8a1.8 1.8 0 001.6-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z" stroke="#DB8A3B" stroke-width="2"/></svg>
+            <div class="txt">
+              <div class="t1">3 warranties expiring within 60 days</div>
+              <div class="t2">Water heater, HVAC system, and roof shingles need attention</div>
+            </div>
+            <div class="cta">Review
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-grid">
+      <div class="stat-card">
+        <div class="top-row">
+          <div class="icon-chip blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 5-3.4 8.4-7 10-3.6-1.6-7-5-7-10V6l7-3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="badge blue">12 total</span>
+        </div>
+        <div class="stat-value">9</div>
+        <div class="stat-label">Active Warranties</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="top-row">
+          <div class="icon-chip orange">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2-2 2.6-2.6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="badge orange">Action needed</span>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">Maintenance Due</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="top-row">
+          <div class="icon-chip slate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="badge neutral">+6 this mo.</span>
+        </div>
+        <div class="stat-value">86</div>
+        <div class="stat-label">Total Documents</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="top-row">
+          <div class="icon-chip green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 6.5c0-1.9-2.2-3.5-5-3.5s-5 1.4-5 3.2c0 3.9 10 1.9 10 5.8 0 1.8-2.2 3.2-5 3.2s-5-1.6-5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="badge green">On budget</span>
+        </div>
+        <div class="stat-value">$2,340</div>
+        <div class="stat-label">Maintenance Spend This Year</div>
+      </div>
+    </div>
+
+    <!-- Split lists -->
+    <div class="split-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Upcoming Maintenance</h3>
+          <span class="see-all">View all</span>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2-2 2.6-2.6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <div class="info">
+            <div class="name">HVAC Annual Inspection</div>
+            <div class="meta">CoolAir Mechanical <span class="sep"></span> HVAC</div>
+          </div>
+          <div class="right">
+            <div class="amount">$180</div>
+            <div class="date">Due Aug 22</div>
+          </div>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2.7c3 3.8 7 8.6 7 12.3a7 7 0 11-14 0c0-3.7 4-8.5 7-12.3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <div class="info">
+            <div class="name">Water Heater Flush</div>
+            <div class="meta">Concord Plumbing Co. <span class="sep"></span> Plumbing</div>
+          </div>
+          <div class="right">
+            <div class="amount">$120</div>
+            <div class="date">Due Sep 3</div>
+          </div>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip slate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12l2-8h14l2 8M5 12v7a1 1 0 001 1h12a1 1 0 001-1v-7M3 12h18" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <div class="info">
+            <div class="name">Gutter Cleaning</div>
+            <div class="meta">Northside Exteriors <span class="sep"></span> Exterior</div>
+          </div>
+          <div class="right">
+            <div class="amount">$95</div>
+            <div class="date">Due Sep 14</div>
+          </div>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div class="info">
+            <div class="name">Lawn Irrigation Winterizing</div>
+            <div class="meta">GreenScape Services <span class="sep"></span> Landscaping</div>
+          </div>
+          <div class="right">
+            <div class="amount">$150</div>
+            <div class="date">Due Oct 1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Recent Activity</h3>
+          <span class="see-all">View all</span>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="info">
+            <div class="name">Roof inspection completed</div>
+            <div class="meta">Summit Roofing <span class="sep"></span> Inspection</div>
+          </div>
+          <div class="right">
+            <div class="amount">$250</div>
+            <div class="date">2 days ago</div>
+          </div>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <div class="info">
+            <div class="name">Invoice uploaded</div>
+            <div class="meta">Concord Plumbing Co. <span class="sep"></span> Document</div>
+          </div>
+          <div class="right">
+            <div class="amount">$310</div>
+            <div class="date">4 days ago</div>
+          </div>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip orange"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 16.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.6 2.7h15.8a1.8 1.8 0 001.6-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z" stroke="currentColor" stroke-width="2"/></svg></div>
+          <div class="info">
+            <div class="name">Warranty expiring soon</div>
+            <div class="meta">GE Water Heater <span class="sep"></span> Warranty</div>
+          </div>
+          <div class="right">
+            <div class="amount">—</div>
+            <div class="date">5 days ago</div>
+          </div>
+        </div>
+
+        <div class="list-row">
+          <div class="icon-chip green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 6.5c0-1.9-2.2-3.5-5-3.5s-5 1.4-5 3.2c0 3.9 10 1.9 10 5.8 0 1.8-2.2 3.2-5 3.2s-5-1.6-5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="info">
+            <div class="name">Payment recorded</div>
+            <div class="meta">Northside Exteriors <span class="sep"></span> Maintenance</div>
+          </div>
+          <div class="right">
+            <div class="amount">$95</div>
+            <div class="date">1 week ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MOBILE SCREENS
+============================================================ -->
+<div class="view" id="view-mobile">
+  <div class="wrap">
+    <div class="mobile-intro">
+      <h1>HomeLedger AI — Mobile</h1>
+      <p>Four core screens: Dashboard, Maintenance, Warranties, and Documents.</p>
+    </div>
+
+    <div class="phones-row">
+
+      <!-- PHONE 1: DASHBOARD -->
+      <div class="phone-block">
+        <div class="phone-label">Dashboard</div>
+        <div class="iphone">
+          <div class="iphone-screen">
+            <div class="dynamic-island"></div>
+            <div class="status-bar">
+              <span>9:41</span>
+              <div class="icons">
+                <svg width="16" height="11" viewBox="0 0 20 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="0.5" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="currentColor"/></svg>
+                <svg width="20" height="11" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+              </div>
+            </div>
+
+            <div class="m-scroll">
+              <div class="m-header">
+                <div class="thumb">
+                  <svg viewBox="0 0 44 44"><rect width="44" height="44" fill="#EAF1F8"/><polygon points="8,26 22,14 36,26" fill="#8A5A45"/><rect x="12" y="24" width="20" height="14" fill="#F4EFE7"/><rect x="19" y="30" width="6" height="8" fill="#DB8A3B"/></svg>
+                </div>
+                <div class="info">
+                  <div class="addr">128 Maple Ridge Ln</div>
+                  <div class="val">$682,400 · +4.2%</div>
+                </div>
+                <div class="bell">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+
+              <div class="m-tiles">
+                <div class="m-tile">
+                  <div class="icon-chip blue" style="width:32px;height:32px;border-radius:9px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 5-3.4 8.4-7 10-3.6-1.6-7-5-7-10V6l7-3z" stroke="currentColor" stroke-width="2"/></svg></div>
+                  <div class="val">9</div>
+                  <div class="lbl">Warranties</div>
+                </div>
+                <div class="m-tile">
+                  <div class="icon-chip orange" style="width:32px;height:32px;border-radius:9px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2-2 2.6-2.6z" stroke="currentColor" stroke-width="2"/></svg></div>
+                  <div class="val">3</div>
+                  <div class="lbl">Maintenance</div>
+                </div>
+                <div class="m-tile">
+                  <div class="icon-chip slate" style="width:32px;height:32px;border-radius:9px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z" stroke="currentColor" stroke-width="2"/></svg></div>
+                  <div class="val">86</div>
+                  <div class="lbl">Documents</div>
+                </div>
+                <div class="m-tile">
+                  <div class="icon-chip green" style="width:32px;height:32px;border-radius:9px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 6.5c0-1.9-2.2-3.5-5-3.5s-5 1.4-5 3.2c0 3.9 10 1.9 10 5.8 0 1.8-2.2 3.2-5 3.2s-5-1.6-5-3.5" stroke="currentColor" stroke-width="2"/></svg></div>
+                  <div class="val">$2.3k</div>
+                  <div class="lbl">Spend YTD</div>
+                </div>
+              </div>
+
+              <div class="ask-bar">
+                <div class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3a4 4 0 014 4v5a4 4 0 01-8 0V7a4 4 0 014-4z" stroke="currentColor" stroke-width="2"/><path d="M6 11a6 6 0 0012 0M12 19v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                <div class="txt">
+                  <div class="t1">Ask Your Property</div>
+                  <div class="t2">"When was my roof replaced?"</div>
+                </div>
+                <div class="mic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a4 4 0 014 4v5a4 4 0 01-8 0V7a4 4 0 014-4z" stroke="white" stroke-width="2"/></svg></div>
+              </div>
+
+              <div class="m-section-title">Due This Week</div>
+              <div class="m-card">
+                <div class="icon-chip orange" style="width:38px;height:38px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2-2 2.6-2.6z" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div class="body">
+                  <div class="r1"><span class="name">HVAC Inspection</span><span class="price">$180</span></div>
+                  <div class="sub">CoolAir Mechanical · Aug 22</div>
+                </div>
+              </div>
+              <div class="m-card">
+                <div class="icon-chip blue" style="width:38px;height:38px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2.7c3 3.8 7 8.6 7 12.3a7 7 0 11-14 0c0-3.7 4-8.5 7-12.3z" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div class="body">
+                  <div class="r1"><span class="name">Water Heater Flush</span><span class="price">$120</span></div>
+                  <div class="sub">Concord Plumbing · Sep 3</div>
+                </div>
+              </div>
+            </div>
+            <div class="home-indicator"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHONE 2: MAINTENANCE -->
+      <div class="phone-block">
+        <div class="phone-label">Maintenance</div>
+        <div class="iphone">
+          <div class="iphone-screen">
+            <div class="dynamic-island"></div>
+            <div class="status-bar">
+              <span>9:41</span>
+              <div class="icons">
+                <svg width="16" height="11" viewBox="0 0 20 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="0.5" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="currentColor"/></svg>
+                <svg width="20" height="11" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="m-scroll">
+              <div style="font-size:18px;font-weight:800;padding:8px 2px 14px;letter-spacing:-0.02em;">Maintenance</div>
+
+              <div class="segmented">
+                <div class="seg active">All</div>
+                <div class="seg">Upcoming</div>
+                <div class="seg">Completed</div>
+              </div>
+
+              <div class="m-card">
+                <div class="icon-chip orange" style="width:38px;height:38px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2-2 2.6-2.6z" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div class="body">
+                  <div class="r1"><span class="name">HVAC Inspection</span><span class="m-badge" style="background:var(--orange-light);color:var(--orange);">Expires 6d</span></div>
+                  <div class="sub">CoolAir Mechanical · $180</div>
+                </div>
+              </div>
+              <div class="m-card">
+                <div class="icon-chip blue" style="width:38px;height:38px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2.7c3 3.8 7 8.6 7 12.3a7 7 0 11-14 0c0-3.7 4-8.5 7-12.3z" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div class="body">
+                  <div class="r1"><span class="name">Water Heater Flush</span><span class="m-badge" style="background:var(--blue-light);color:var(--blue);">Recommended</span></div>
+                  <div class="sub">Concord Plumbing · $120</div>
+                </div>
+              </div>
+              <div class="m-card">
+                <div class="icon-chip slate" style="width:38px;height:38px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 12l2-8h14l2 8M5 12v7a1 1 0 001 1h12a1 1 0 001-1v-7M3 12h18" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div class="body">
+                  <div class="r1"><span class="name">Gutter Cleaning</span><span class="m-badge" style="background:var(--orange-light);color:var(--orange);">Expires 29d</span></div>
+                  <div class="sub">Northside Exteriors · $95</div>
+                </div>
+              </div>
+              <div class="m-card" style="opacity:0.7;">
+                <div class="icon-chip green" style="width:38px;height:38px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></div>
+                <div class="body">
+                  <div class="r1"><span class="name">Roof Inspection</span><span class="m-badge" style="background:var(--green-light);color:var(--green);">Completed</span></div>
+                  <div class="sub">Summit Roofing · $250</div>
+                </div>
+              </div>
+              <div class="m-card" style="opacity:0.7;">
+                <div class="icon-chip green" style="width:38px;height:38px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></div>
+                <div class="body">
+                  <div class="r1"><span class="name">Chimney Sweep</span><span class="m-badge" style="background:var(--green-light);color:var(--green);">Completed</span></div>
+                  <div class="sub">Concord Chimney Co. · $210</div>
+                </div>
+              </div>
+            </div>
+            <div class="home-indicator"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHONE 3: WARRANTIES -->
+      <div class="phone-block">
+        <div class="phone-label">Warranties</div>
+        <div class="iphone">
+          <div class="iphone-screen">
+            <div class="dynamic-island"></div>
+            <div class="status-bar">
+              <span>9:41</span>
+              <div class="icons">
+                <svg width="16" height="11" viewBox="0 0 20 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="0.5" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="currentColor"/></svg>
+                <svg width="20" height="11" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="m-scroll">
+              <div style="font-size:18px;font-weight:800;padding:8px 2px 14px;letter-spacing:-0.02em;">Warranties</div>
+
+              <div class="warranty-card">
+                <div class="ring">
+                  <svg viewBox="0 0 46 46"><circle cx="23" cy="23" r="19" stroke="#F3DBB4" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="#DB8A3B" stroke-width="4" fill="none" stroke-dasharray="119.4" stroke-dashoffset="95" stroke-linecap="round"/></svg>
+                  <div class="pct">18%</div>
+                </div>
+                <div class="body">
+                  <div class="r1"><span class="name">GE Water Heater</span></div>
+                  <div class="sub">Expires Oct 4, 2026</div>
+                </div>
+                <span class="m-badge" style="background:var(--orange-light);color:var(--orange);">Expiring Soon</span>
+              </div>
+
+              <div class="warranty-card">
+                <div class="ring">
+                  <svg viewBox="0 0 46 46"><circle cx="23" cy="23" r="19" stroke="#F3DBB4" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="#DB8A3B" stroke-width="4" fill="none" stroke-dasharray="119.4" stroke-dashoffset="101" stroke-linecap="round"/></svg>
+                  <div class="pct">15%</div>
+                </div>
+                <div class="body">
+                  <div class="r1"><span class="name">Trane HVAC System</span></div>
+                  <div class="sub">Expires Sep 18, 2026</div>
+                </div>
+                <span class="m-badge" style="background:var(--orange-light);color:var(--orange);">Expiring Soon</span>
+              </div>
+
+              <div class="warranty-card">
+                <div class="ring">
+                  <svg viewBox="0 0 46 46"><circle cx="23" cy="23" r="19" stroke="#CBE7D7" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="#3E8F63" stroke-width="4" fill="none" stroke-dasharray="119.4" stroke-dashoffset="30" stroke-linecap="round"/></svg>
+                  <div class="pct">75%</div>
+                </div>
+                <div class="body">
+                  <div class="r1"><span class="name">CertainTeed Roof Shingles</span></div>
+                  <div class="sub">Expires Mar 2039</div>
+                </div>
+                <span class="m-badge" style="background:var(--green-light);color:var(--green);">Active</span>
+              </div>
+
+              <div class="warranty-card">
+                <div class="ring">
+                  <svg viewBox="0 0 46 46"><circle cx="23" cy="23" r="19" stroke="#CBE7D7" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="#3E8F63" stroke-width="4" fill="none" stroke-dasharray="119.4" stroke-dashoffset="18" stroke-linecap="round"/></svg>
+                  <div class="pct">85%</div>
+                </div>
+                <div class="body">
+                  <div class="r1"><span class="name">Whirlpool Refrigerator</span></div>
+                  <div class="sub">Expires Jan 2028</div>
+                </div>
+                <span class="m-badge" style="background:var(--green-light);color:var(--green);">Active</span>
+              </div>
+
+              <div class="warranty-card">
+                <div class="ring">
+                  <svg viewBox="0 0 46 46"><circle cx="23" cy="23" r="19" stroke="#CBE7D7" stroke-width="4" fill="none"/><circle cx="23" cy="23" r="19" stroke="#3E8F63" stroke-width="4" fill="none" stroke-dasharray="119.4" stroke-dashoffset="42" stroke-linecap="round"/></svg>
+                  <div class="pct">65%</div>
+                </div>
+                <div class="body">
+                  <div class="r1"><span class="name">Andersen Windows</span></div>
+                  <div class="sub">Expires Jun 2031</div>
+                </div>
+                <span class="m-badge" style="background:var(--green-light);color:var(--green);">Active</span>
+              </div>
+            </div>
+            <div class="home-indicator"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHONE 4: DOCUMENTS -->
+      <div class="phone-block">
+        <div class="phone-label">Documents</div>
+        <div class="iphone">
+          <div class="iphone-screen">
+            <div class="dynamic-island"></div>
+            <div class="status-bar">
+              <span>9:41</span>
+              <div class="icons">
+                <svg width="16" height="11" viewBox="0 0 20 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="0.5" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="currentColor"/></svg>
+                <svg width="20" height="11" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="m-scroll">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px 14px;">
+                <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em;">Documents</div>
+                <div class="icon-chip blue" style="width:32px;height:32px;border-radius:9px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></div>
+              </div>
+
+              <div class="folder-grid">
+                <div class="folder-card">
+                  <div class="ic blue" style="background:var(--blue-light);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4C5FD5"><path d="M12 3l7 3v5c0 5-3.4 8.4-7 10-3.6-1.6-7-5-7-10V6l7-3z" stroke-width="2"/></svg></div>
+                  <div class="name">Warranties</div>
+                  <div class="count">14 files</div>
+                </div>
+                <div class="folder-card">
+                  <div class="ic green" style="background:var(--green-light);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3E8F63"><path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke-width="2" stroke-linejoin="round"/><path d="M9 13h6M9 17h6" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                  <div class="name">Receipts &amp; Invoices</div>
+                  <div class="count">31 files</div>
+                </div>
+                <div class="folder-card">
+                  <div class="ic orange" style="background:var(--orange-light);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#DB8A3B"><circle cx="11" cy="11" r="7" stroke-width="2"/><path d="M20 20l-4.3-4.3" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div class="name">Inspection Reports</div>
+                  <div class="count">7 files</div>
+                </div>
+                <div class="folder-card">
+                  <div class="ic slate" style="background:#F1F3F6;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5B6472"><path d="M4 6h16M4 12h16M4 18h10" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div class="name">Contracts</div>
+                  <div class="count">9 files</div>
+                </div>
+                <div class="folder-card">
+                  <div class="ic blue" style="background:var(--blue-light);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4C5FD5"><rect x="4" y="3" width="16" height="18" rx="2" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                  <div class="name">Manuals</div>
+                  <div class="count">18 files</div>
+                </div>
+                <div class="folder-card">
+                  <div class="ic green" style="background:var(--green-light);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3E8F63"><path d="M9 12l2 2 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/></svg></div>
+                  <div class="name">Permits</div>
+                  <div class="count">6 files</div>
+                </div>
+              </div>
+            </div>
+            <div class="home-indicator"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     AI "ASK YOUR PROPERTY" VIEW
+============================================================ -->
+<div class="view" id="view-ai">
+  <div class="wrap">
+    <div class="ai-intro">
+      <div class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3a4 4 0 014 4v5a4 4 0 01-8 0V7a4 4 0 014-4z" stroke="white" stroke-width="2"/><path d="M6 11a6 6 0 0012 0M12 19v2M9 21h6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h1>Ask Your Property</h1>
+      <p>Get instant answers pulled straight from your uploaded documents — warranties, receipts, inspection reports, and more.</p>
+    </div>
+
+    <div class="pill-row">
+      <div class="prompt-pill">When was my roof replaced?</div>
+      <div class="prompt-pill">Is my water heater under warranty?</div>
+      <div class="prompt-pill">How much did I spend on landscaping?</div>
+    </div>
+
+    <div class="chat-panel">
+      <div class="chat-panel-head">
+        <span class="dot-status"></span>
+        <div>
+          <div class="t">Property Assistant</div>
+          <div class="s">Trained on 86 of your documents</div>
+        </div>
+      </div>
+
+      <div class="chat-body">
+        <div class="msg-user">
+          <div class="bubble">When was my roof replaced?</div>
+        </div>
+
+        <div class="msg-ai">
+          <div class="bubble-lead">Your roof was replaced on <strong>March 14, 2022</strong> by Summit Roofing. Here's what I found in your records:</div>
+
+          <div class="extract-card">
+            <div class="extract-row">
+              <span class="k">Roof Replacement Date</span>
+              <span class="v">Mar 14, 2022</span>
+            </div>
+            <div class="extract-row">
+              <span class="k">Contractor</span>
+              <span class="v">Summit Roofing Co.</span>
+            </div>
+            <div class="extract-row">
+              <span class="k">Total Cost</span>
+              <span class="v">$14,850</span>
+            </div>
+            <div class="extract-row">
+              <span class="k">Warranty Expiration</span>
+              <span class="v">Mar 2039 <span style="color:#3E8F63;">(Active)</span></span>
+            </div>
+
+            <div class="file-chip">
+              <div class="ic">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="info">
+                <div class="n">roof_invoice_summit_2022.pdf</div>
+                <div class="s">Original invoice · 2.1 MB</div>
+              </div>
+              <div class="ext">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 4h6v6M20 4L10 14M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-row">
+        <div class="mic-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3a4 4 0 014 4v5a4 4 0 01-8 0V7a4 4 0 014-4z" stroke="currentColor" stroke-width="2"/><path d="M6 11a6 6 0 0012 0M12 19v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="field">Ask a follow-up question…</div>
+        <div class="send">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 12l16-8-6 16-2.5-6.5L4 12z" stroke="white" stroke-width="1.8" stroke-linejoin="round" fill="white"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.preview-nav .tab');
+  const views = { desktop: document.getElementById('view-desktop'), mobile: document.getElementById('view-mobile'), ai: document.getElementById('view-ai') };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      Object.values(views).forEach(v => v.classList.remove('active'));
+      views[tab.dataset.view].classList.add('active');
+      window.scrollTo({top:0, behavior:'instant'});
+    });
+  });
+</script>
+
+</body>
+</html>
